@@ -39,6 +39,17 @@
         <a href="#add-form" class="text-sm text-indigo-600 hover:text-indigo-800 font-medium">+ Dodaj</a>
       </div>
     </div>
+
+    <!-- Jurisdiction tabs -->
+    <div class="border-t border-gray-100">
+      <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex gap-6 -mb-px">
+          <button data-jur="all" class="jur-tab py-3 text-sm font-medium border-b-2 border-indigo-600 text-indigo-700">Wszystkie</button>
+          <button data-jur="tsue" class="jur-tab py-3 text-sm font-medium border-b-2 border-transparent text-gray-400 hover:text-gray-600">🇪🇺 TSUE</button>
+          <button data-jur="pl" class="jur-tab py-3 text-sm font-medium border-b-2 border-transparent text-gray-400 hover:text-gray-600">🇵🇱 Krajowe (KIS · NSA)</button>
+        </div>
+      </div>
+    </div>
   </header>
 
   <!-- Search + Filters -->
@@ -52,11 +63,11 @@
                class="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-white">
       </div>
       <div class="flex gap-2">
-        <select id="filter-category" class="px-3 py-2.5 border border-gray-300 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
-          <option value="all">Wszystkie kategorie</option>
-        </select>
         <select id="filter-status" class="px-3 py-2.5 border border-gray-300 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
           <option value="all">Wszystkie statusy</option>
+        </select>
+        <select id="filter-category" class="px-3 py-2.5 border border-gray-300 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
+          <option value="all">Wszystkie kategorie</option>
         </select>
       </div>
     </div>
@@ -80,11 +91,18 @@
       <form id="form" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         <div>
           <label class="block text-xs font-medium text-gray-500 mb-1">Sygnatura</label>
-          <input type="text" id="f-sig" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="np. 0113-KDIPT1-2.4012.878.2018.2.KW">
+          <input type="text" id="f-sig" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="np. C-437/06">
         </div>
         <div>
           <label class="block text-xs font-medium text-gray-500 mb-1">Tytuł</label>
-          <input type="text" id="f-title" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="np. Prewspółczynnik VAT">
+          <input type="text" id="f-title" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="np. Securenta">
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-gray-500 mb-1">Jurysdykcja</label>
+          <select id="f-jur" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
+            <option value="tsue">🇪🇺 TSUE</option>
+            <option value="pl">🇵🇱 Krajowe</option>
+          </select>
         </div>
         <div>
           <label class="block text-xs font-medium text-gray-500 mb-1">Kategoria</label>
@@ -125,62 +143,69 @@
     // ---------- DATA ----------
     const data = [
       {
-        sig: '0113-KDIPT1-2.4012.878.2018.2.KW',
-        title: 'Prewspółczynnik VAT — dywidendy w spółce holdingowej',
-        category: 'VAT',
-        status: 'aktualne',
-        date: '2019-03-01',
-        link: 'https://sip.lex.pl/orzeczenia-i-pisma-urzedowe/pisma-urzedowe/0113-kdipt1-2-4012-878-2018-2-kw-prewspolczynnik-vat-w-185038484',
-        desc: 'KIS: dywidendy nie wymagają pre-współczynnika (art. 86 ust. 2a). To "zdarzenia towarzyszące działalności gospodarczej", nie "czynności inne niż działalność gospodarcza". Holding aktywny (usługi na rzecz spółek zależnych). NSA: I FPS 9/10.',
-      },
-      {
         sig: 'C-437/06',
         title: 'Securenta — podział VAT między econ i non-economic',
+        jur: 'tsue',
         category: 'VAT',
         status: 'aktualne',
         date: '2008-03-13',
         link: 'https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:62006CJ0437',
-        desc: 'TSUE: działalność poza zakresem VAT (non-economic) musi być oddzielona od gospodarczej. Państwa członkowskie wybierają metodę podziału, ale musi obiektywnie odzwierciedlać wykorzystanie.',
+        desc: 'Działalność poza zakresem VAT (non-economic) musi być oddzielona od gospodarczej. Państwa członkowskie wybierają metodę podziału, ale musi obiektywnie odzwierciedlać wykorzystanie.',
       },
       {
         sig: 'C-108/14, C-109/14',
         title: 'Larentia + Minerva — holding aktywny a VAT',
+        jur: 'tsue',
         category: 'VAT',
         status: 'aktualne',
         date: '2015-07-16',
         link: 'https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:62014CJ0108',
-        desc: 'TSUE: holding aktywny (świadczący usługi zarządcze) prowadzi działalność gospodarczą. Samo posiadanie udziałów — nie. Koszty pozyskania kapitału mogą być częściowo odliczalne.',
+        desc: 'Holding aktywny (świadczący usługi zarządcze) prowadzi działalność gospodarczą. Samo posiadanie udziałów — nie. Koszty pozyskania kapitału mogą być częściowo odliczalne.',
       },
       {
         sig: 'C-16/00',
         title: 'Cibo Participations — neutralność dywidend dla proporcji',
+        jur: 'tsue',
         category: 'VAT',
         status: 'aktualne',
         date: '2001-09-27',
         link: 'https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:62000CJ0016',
-        desc: 'TSUE: neutralność dywidend dla proporcjonalnego rozliczenia VAT nie zmienia się, nawet gdy spółka holdingowa jest podatnikiem VAT z tytułu usług zarządzania spółką zależną.',
+        desc: 'Neutralność dywidend dla proporcjonalnego rozliczenia VAT nie zmienia się, nawet gdy spółka holdingowa jest podatnikiem VAT z tytułu usług zarządzania spółką zależną.',
+      },
+      {
+        sig: '0113-KDIPT1-2.4012.878.2018.2.KW',
+        title: 'Prewspółczynnik VAT — dywidendy w spółce holdingowej',
+        jur: 'pl',
+        category: 'VAT',
+        status: 'aktualne',
+        date: '2019-03-01',
+        link: 'https://sip.lex.pl/orzeczenia-i-pisma-urzedowe/pisma-urzedowe/0113-kdipt1-2-4012-878-2018-2-kw-prewspolczynnik-vat-w-185038484',
+        desc: 'KIS: dywidendy nie wymagają pre-współczynnika (art. 86 ust. 2a). To "zdarzenia towarzyszące działalności gospodarczej", nie "czynności inne niż działalność gospodarcza". Holding aktywny.',
       },
       {
         sig: 'I FPS 9/10',
         title: 'Uchwała NSA — dywidendy neutralne dla proporcji',
+        jur: 'pl',
         category: 'VAT',
         status: 'aktualne',
         date: '2011-10-24',
         link: '',
-        desc: 'NSA: czynności wyłączone z zakresu VAT (takie jak dywidendy) nie mają wpływu na wyliczanie proporcji sprzedaży.',
+        desc: 'Czynności wyłączone z zakresu VAT (takie jak dywidendy) nie mają wpływu na wyliczanie proporcji sprzedaży.',
       },
       {
         sig: '0114-KDIP4-1.4012.48.2022.1.APR',
         title: 'Brak pre-współczynnika — rekompensaty (MOSiR)',
+        jur: 'pl',
         category: 'VAT',
         status: 'aktualne',
         date: '2022-03-28',
         link: '',
-        desc: 'KIS: brak konieczności pre-współczynnika. Precedens dla tezy że pre-współczynnik dotyczy tylko wąskiej grupy podatników. (Stan faktyczny: MOSiR, nie holding).',
+        desc: 'KIS: brak konieczności pre-współczynnika. Precedens dla tezy że pre-współczynnik dotyczy tylko wąskiej grupy podatników.',
       },
       {
         sig: 'IBPP3/4512-141/16/JP',
-        title: 'Dywidendy a proporcja — interpretacja przywołana w 0113',
+        title: 'Dywidendy a proporcja — przywołana w 0113',
+        jur: 'pl',
         category: 'VAT',
         status: 'aktualne',
         date: '2016-05-06',
@@ -189,7 +214,8 @@
       },
       {
         sig: 'ILPP2/4512-1-161/16-4/AD',
-        title: 'Dywidendy a proporcja — interpretacja przywołana w 0113',
+        title: 'Dywidendy a proporcja — przywołana w 0113',
+        jur: 'pl',
         category: 'VAT',
         status: 'aktualne',
         date: '2016-05-31',
@@ -199,17 +225,17 @@
     ];
 
     // ---------- HELPERS ----------
-    const statusIcon = {
-      aktualne: '✅',
-      zmienione: '⚠️',
-      uchylone: '❌',
-    };
-
+    const statusIcon = { aktualne: '✅', zmienione: '⚠️', uchylone: '❌' };
     const statusColors = {
       aktualne: 'bg-green-50 text-green-700 ring-green-600/20',
       zmienione: 'bg-yellow-50 text-yellow-700 ring-yellow-600/20',
       uchylone: 'bg-red-50 text-red-700 ring-red-600/20',
     };
+
+    const jurLabel = { tsue: 'TSUE', pl: 'Krajowe' };
+    const jurColors = { tsue: 'bg-blue-50 text-blue-700 ring-blue-600/20', pl: 'bg-amber-50 text-amber-700 ring-amber-600/20' };
+
+    let activeJur = 'all';
 
     // ---------- RENDER ----------
     function render() {
@@ -218,6 +244,7 @@
       const status = document.getElementById('filter-status').value;
 
       let filtered = data.filter(d => {
+        if (activeJur !== 'all' && d.jur !== activeJur) return false;
         if (cat !== 'all' && d.category !== cat) return false;
         if (status !== 'all' && d.status !== status) return false;
         if (search) {
@@ -227,12 +254,10 @@
         return true;
       });
 
-      // sort by date descending
       filtered.sort((a, b) => (b.date || '').localeCompare(a.date || ''));
 
       const container = document.getElementById('results');
       const empty = document.getElementById('empty-state');
-
       document.getElementById('counter').textContent = `${filtered.length} z ${data.length}`;
 
       if (filtered.length === 0) {
@@ -247,9 +272,10 @@
         return `
           <div class="bg-white border border-gray-200 rounded-xl p-5 hover:shadow-sm transition-shadow">
             <div class="flex items-start justify-between gap-3 mb-1.5">
-              <div class="min-w-0">
+              <div class="min-w-0 flex items-center gap-2">
+                <span class="text-xs font-medium px-2 py-0.5 rounded-full ring-1 ring-inset ${jurColors[d.jur]}">${jurLabel[d.jur]}</span>
                 <span class="text-sm font-mono font-medium text-indigo-700">${d.sig}</span>
-                ${d.link ? `<a href="${d.link}" target="_blank" class="inline-block ml-2 text-gray-400 hover:text-indigo-600 transition-colors" title="Otwórz link">
+                ${d.link ? `<a href="${d.link}" target="_blank" class="text-gray-400 hover:text-indigo-600 transition-colors" title="Otwórz link">
                   <svg class="w-3.5 h-3.5 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
                 </a>` : ''}
               </div>
@@ -267,21 +293,40 @@
       }).join('');
     }
 
+    // ---------- TABS ----------
+    document.querySelectorAll('.jur-tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        activeJur = tab.getAttribute('data-jur');
+        document.querySelectorAll('.jur-tab').forEach(t => {
+          if (t === tab) {
+            t.classList.remove('border-transparent', 'text-gray-400');
+            t.classList.add('border-indigo-600', 'text-indigo-700');
+          } else {
+            t.classList.remove('border-indigo-600', 'text-indigo-700');
+            t.classList.add('border-transparent', 'text-gray-400');
+          }
+        });
+        render();
+      });
+    });
+
     // ---------- FILTERS SETUP ----------
     function setupFilters() {
-      const catSet = new Set(data.map(d => d.category));
-      const statusSet = new Set(data.map(d => d.status));
-      const catSel = document.getElementById('filter-category');
       const stSel = document.getElementById('filter-status');
-      catSet.forEach(c => {
-        const o = document.createElement('option');
-        o.value = c; o.textContent = c;
-        catSel.appendChild(o);
-      });
+      const catSel = document.getElementById('filter-category');
+      [...stSel.options].forEach((o,i) => { if(i>0) o.remove(); });
+      [...catSel.options].forEach((o,i) => { if(i>0) o.remove(); });
+      const statusSet = new Set(data.map(d => d.status));
+      const catSet = new Set(data.map(d => d.category));
       statusSet.forEach(s => {
         const o = document.createElement('option');
         o.value = s; o.textContent = `${statusIcon[s]} ${s}`;
         stSel.appendChild(o);
+      });
+      catSet.forEach(c => {
+        const o = document.createElement('option');
+        o.value = c; o.textContent = c;
+        catSel.appendChild(o);
       });
     }
 
@@ -291,6 +336,7 @@
       const entry = {
         sig: document.getElementById('f-sig').value.trim(),
         title: document.getElementById('f-title').value.trim(),
+        jur: document.getElementById('f-jur').value,
         category: document.getElementById('f-cat').value,
         status: document.getElementById('f-status').value,
         date: document.getElementById('f-date').value,
