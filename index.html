@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Baza Interpretacji Podatkowych</title>
+  <script src="https://cdn.tailwindcss.com">
+  </script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+          },
+        },
+      },
+    }
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz@14..32&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Inter', system-ui, sans-serif; }
+  </style>
+</head>
+<body class="bg-gray-50 text-gray-900 antialiased">
+
+  <!-- Header -->
+  <header class="bg-white border-b border-gray-200 sticky top-0 z-10">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
+      <div>
+        <h1 class="text-xl font-semibold tracking-tight">Baza Interpretacji</h1>
+        <p class="text-sm text-gray-500 mt-0.5">Orzecznictwo TSUE · NSA · KIS</p>
+      </div>
+      <div class="flex items-center gap-3">
+        <span id="counter" class="text-sm text-gray-400"></span>
+        <a href="#add-form" class="text-sm text-indigo-600 hover:text-indigo-800 font-medium">+ Dodaj</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Search + Filters -->
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-5">
+    <div class="flex flex-col sm:flex-row gap-3">
+      <div class="flex-1 relative">
+        <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+        </svg>
+        <input type="text" id="search" placeholder="Szukaj po sygnaturze, tytule, opisie..." 
+               class="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-white">
+      </div>
+      <div class="flex gap-2">
+        <select id="filter-category" class="px-3 py-2.5 border border-gray-300 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
+          <option value="all">Wszystkie kategorie</option>
+        </select>
+        <select id="filter-status" class="px-3 py-2.5 border border-gray-300 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
+          <option value="all">Wszystkie statusy</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- Results -->
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pb-12">
+    <div id="results" class="space-y-3"></div>
+    <div id="empty-state" class="hidden text-center py-16">
+      <svg class="mx-auto w-12 h-12 text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+      </svg>
+      <p class="text-gray-500 text-sm">Brak wyników dla wybranych filtrów.</p>
+    </div>
+  </div>
+
+  <!-- Add form -->
+  <div id="add-form" class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pb-20">
+    <div class="bg-white border border-gray-200 rounded-xl p-6">
+      <h2 class="text-base font-semibold mb-4">+ Dodaj nową interpretację</h2>
+      <form id="form" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div>
+          <label class="block text-xs font-medium text-gray-500 mb-1">Sygnatura</label>
+          <input type="text" id="f-sig" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="np. 0113-KDIPT1-2.4012.878.2018.2.KW">
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-gray-500 mb-1">Tytuł</label>
+          <input type="text" id="f-title" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="np. Prewspółczynnik VAT">
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-gray-500 mb-1">Kategoria</label>
+          <select id="f-cat" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
+            <option value="VAT">VAT</option>
+            <option value="CIT">CIT</option>
+            <option value="Ordynacja">Ordynacja podatkowa</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-gray-500 mb-1">Status</label>
+          <select id="f-status" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
+            <option value="aktualne">✅ Aktualne</option>
+            <option value="zmienione">⚠️ Zmienione</option>
+            <option value="uchylone">❌ Uchylone</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-gray-500 mb-1">Data wydania</label>
+          <input type="date" id="f-date" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-gray-500 mb-1">Link</label>
+          <input type="url" id="f-link" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="https://...">
+        </div>
+        <div class="sm:col-span-2 lg:col-span-3">
+          <label class="block text-xs font-medium text-gray-500 mb-1">Opis / sedno</label>
+          <textarea id="f-desc" rows="2" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="Czego dotyczy, jakie stanowisko..."></textarea>
+        </div>
+        <div class="sm:col-span-2 lg:col-span-3">
+          <button type="submit" class="px-6 py-2.5 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700 transition-colors">Dodaj</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    // ---------- DATA ----------
+    const data = [
+      {
+        sig: '0113-KDIPT1-2.4012.878.2018.2.KW',
+        title: 'Prewspółczynnik VAT — dywidendy w spółce holdingowej',
+        category: 'VAT',
+        status: 'aktualne',
+        date: '2019-03-01',
+        link: 'https://sip.lex.pl/orzeczenia-i-pisma-urzedowe/pisma-urzedowe/0113-kdipt1-2-4012-878-2018-2-kw-prewspolczynnik-vat-w-185038484',
+        desc: 'KIS: dywidendy nie wymagają pre-współczynnika (art. 86 ust. 2a). To "zdarzenia towarzyszące działalności gospodarczej", nie "czynności inne niż działalność gospodarcza". Holding aktywny (usługi na rzecz spółek zależnych). NSA: I FPS 9/10.',
+      },
+      {
+        sig: 'C-437/06',
+        title: 'Securenta — podział VAT między econ i non-economic',
+        category: 'VAT',
+        status: 'aktualne',
+        date: '2008-03-13',
+        link: 'https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:62006CJ0437',
+        desc: 'TSUE: działalność poza zakresem VAT (non-economic) musi być oddzielona od gospodarczej. Państwa członkowskie wybierają metodę podziału, ale musi obiektywnie odzwierciedlać wykorzystanie.',
+      },
+      {
+        sig: 'C-108/14, C-109/14',
+        title: 'Larentia + Minerva — holding aktywny a VAT',
+        category: 'VAT',
+        status: 'aktualne',
+        date: '2015-07-16',
+        link: 'https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:62014CJ0108',
+        desc: 'TSUE: holding aktywny (świadczący usługi zarządcze) prowadzi działalność gospodarczą. Samo posiadanie udziałów — nie. Koszty pozyskania kapitału mogą być częściowo odliczalne.',
+      },
+      {
+        sig: 'C-16/00',
+        title: 'Cibo Participations — neutralność dywidend dla proporcji',
+        category: 'VAT',
+        status: 'aktualne',
+        date: '2001-09-27',
+        link: 'https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:62000CJ0016',
+        desc: 'TSUE: neutralność dywidend dla proporcjonalnego rozliczenia VAT nie zmienia się, nawet gdy spółka holdingowa jest podatnikiem VAT z tytułu usług zarządzania spółką zależną.',
+      },
+      {
+        sig: 'I FPS 9/10',
+        title: 'Uchwała NSA — dywidendy neutralne dla proporcji',
+        category: 'VAT',
+        status: 'aktualne',
+        date: '2011-10-24',
+        link: '',
+        desc: 'NSA: czynności wyłączone z zakresu VAT (takie jak dywidendy) nie mają wpływu na wyliczanie proporcji sprzedaży.',
+      },
+      {
+        sig: '0114-KDIP4-1.4012.48.2022.1.APR',
+        title: 'Brak pre-współczynnika — rekompensaty (MOSiR)',
+        category: 'VAT',
+        status: 'aktualne',
+        date: '2022-03-28',
+        link: '',
+        desc: 'KIS: brak konieczności pre-współczynnika. Precedens dla tezy że pre-współczynnik dotyczy tylko wąskiej grupy podatników. (Stan faktyczny: MOSiR, nie holding).',
+      },
+      {
+        sig: 'IBPP3/4512-141/16/JP',
+        title: 'Dywidendy a proporcja — interpretacja przywołana w 0113',
+        category: 'VAT',
+        status: 'aktualne',
+        date: '2016-05-06',
+        link: '',
+        desc: 'Dywidendy nie wchodzą do proporcji. Przywołana jako zgodna w interpretacji 0113-KDIPT1.',
+      },
+      {
+        sig: 'ILPP2/4512-1-161/16-4/AD',
+        title: 'Dywidendy a proporcja — interpretacja przywołana w 0113',
+        category: 'VAT',
+        status: 'aktualne',
+        date: '2016-05-31',
+        link: '',
+        desc: 'Dywidendy nie wchodzą do proporcji. Przywołana jako zgodna w interpretacji 0113-KDIPT1.',
+      },
+    ];
+
+    // ---------- HELPERS ----------
+    const statusIcon = {
+      aktualne: '✅',
+      zmienione: '⚠️',
+      uchylone: '❌',
+    };
+
+    const statusColors = {
+      aktualne: 'bg-green-50 text-green-700 ring-green-600/20',
+      zmienione: 'bg-yellow-50 text-yellow-700 ring-yellow-600/20',
+      uchylone: 'bg-red-50 text-red-700 ring-red-600/20',
+    };
+
+    // ---------- RENDER ----------
+    function render() {
+      const search = document.getElementById('search').value.toLowerCase();
+      const cat = document.getElementById('filter-category').value;
+      const status = document.getElementById('filter-status').value;
+
+      let filtered = data.filter(d => {
+        if (cat !== 'all' && d.category !== cat) return false;
+        if (status !== 'all' && d.status !== status) return false;
+        if (search) {
+          const haystack = (d.sig + ' ' + d.title + ' ' + d.desc).toLowerCase();
+          if (!haystack.includes(search)) return false;
+        }
+        return true;
+      });
+
+      // sort by date descending
+      filtered.sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+
+      const container = document.getElementById('results');
+      const empty = document.getElementById('empty-state');
+
+      document.getElementById('counter').textContent = `${filtered.length} z ${data.length}`;
+
+      if (filtered.length === 0) {
+        container.innerHTML = '';
+        empty.classList.remove('hidden');
+        return;
+      }
+      empty.classList.add('hidden');
+
+      container.innerHTML = filtered.map(d => {
+        const st = d.status;
+        return `
+          <div class="bg-white border border-gray-200 rounded-xl p-5 hover:shadow-sm transition-shadow">
+            <div class="flex items-start justify-between gap-3 mb-1.5">
+              <div class="min-w-0">
+                <span class="text-sm font-mono font-medium text-indigo-700">${d.sig}</span>
+                ${d.link ? `<a href="${d.link}" target="_blank" class="inline-block ml-2 text-gray-400 hover:text-indigo-600 transition-colors" title="Otwórz link">
+                  <svg class="w-3.5 h-3.5 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                </a>` : ''}
+              </div>
+              <span class="shrink-0 text-xs font-medium px-2.5 py-0.5 rounded-full ring-1 ring-inset ${statusColors[st]}">${statusIcon[st]} ${st}</span>
+            </div>
+            <h3 class="text-sm font-medium text-gray-900 mb-1">${d.title}</h3>
+            <p class="text-sm text-gray-500 leading-relaxed">${d.desc}</p>
+            <div class="flex items-center gap-3 mt-2 text-xs text-gray-400">
+              <span>${d.category}</span>
+              <span>·</span>
+              <span>${d.date}</span>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // ---------- FILTERS SETUP ----------
+    function setupFilters() {
+      const catSet = new Set(data.map(d => d.category));
+      const statusSet = new Set(data.map(d => d.status));
+      const catSel = document.getElementById('filter-category');
+      const stSel = document.getElementById('filter-status');
+      catSet.forEach(c => {
+        const o = document.createElement('option');
+        o.value = c; o.textContent = c;
+        catSel.appendChild(o);
+      });
+      statusSet.forEach(s => {
+        const o = document.createElement('option');
+        o.value = s; o.textContent = `${statusIcon[s]} ${s}`;
+        stSel.appendChild(o);
+      });
+    }
+
+    // ---------- ADD FORM ----------
+    document.getElementById('form').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const entry = {
+        sig: document.getElementById('f-sig').value.trim(),
+        title: document.getElementById('f-title').value.trim(),
+        category: document.getElementById('f-cat').value,
+        status: document.getElementById('f-status').value,
+        date: document.getElementById('f-date').value,
+        link: document.getElementById('f-link').value.trim(),
+        desc: document.getElementById('f-desc').value.trim(),
+      };
+      if (!entry.sig || !entry.title) return;
+      data.push(entry);
+      this.reset();
+      setupFilters();
+      render();
+    });
+
+    // ---------- EVENTS ----------
+    document.getElementById('search').addEventListener('input', render);
+    document.getElementById('filter-category').addEventListener('change', render);
+    document.getElementById('filter-status').addEventListener('change', render);
+
+    // ---------- INIT ----------
+    setupFilters();
+    render();
+  </script>
+
+</body>
+</html>
